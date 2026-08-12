@@ -1,0 +1,45 @@
+{
+  "client": "CLIENT NAME HERE",
+  "version": "YYYY-MM-DD",
+  "brand_core": {
+    "mission": "",
+    "positioning": "",
+    "brand_role": "How the brand should show up in culture.",
+    "tone": "",
+    "visual_identity": ""
+  },
+  "audience": {
+    "segments": [],
+    "needs": [],
+    "motivations": [],
+    "barriers": [],
+    "culture": "",
+    "media_behavior": ""
+  },
+  "category": {
+    "space": "",
+    "competitors": [],
+    "category_context": ""
+  },
+  "channels": {
+    "priorities": [],
+    "formats": [],
+    "guidance": ""
+  },
+  "messaging": {
+    "pillars": [],
+    "approved_language": [],
+    "banned_language": [],
+    "claims_rules": ""
+  },
+  "governance": {
+    "do_not": [],
+    "sensitive_topics": [],
+    "approval_matrix": ""
+  },
+  "performance_memory": {
+    "winning_hooks": [],
+    "past_learnings": [],
+    "avoid": []
+  }
+}
