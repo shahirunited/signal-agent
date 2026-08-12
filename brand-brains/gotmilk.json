@@ -1,0 +1,55 @@
+{
+  "client": "got milk?",
+  "version": "2026-06-26",
+  "brand_core": {
+    "mission": "Remind people that milk is a timeless, wholesome staple worth reaching for.",
+    "positioning": "The iconic, culturally-fluent voice of milk — nostalgic but never dated, playful but trustworthy.",
+    "brand_role": "A friendly cultural participant that shows up in the moments people already care about, milk in hand.",
+    "tone": "Playful, warm, self-aware, pop-culture-literate, never preachy or clinical.",
+    "visual_identity": "The milk mustache. Clean, bold, high-contrast. Classic wordmark 'got milk?'."
+  },
+  "audience": {
+    "segments": [
+      "Gen Z (16-26) driving culture on TikTok",
+      "Millennial parents nostalgic for the original campaign",
+      "Health-curious young adults rethinking what they drink"
+    ],
+    "needs": ["quick energy", "affordable nutrition", "familiar comfort", "shareable cultural moments"],
+    "motivations": ["nostalgia", "belonging", "feeling good about simple choices"],
+    "barriers": ["plant-milk competition", "perception milk is 'old-fashioned'", "dietary trends away from dairy"],
+    "culture": "Very online, meme-fluent, values authenticity and brands that don't try too hard.",
+    "media_behavior": "TikTok-first, Instagram Reels, ambient X. Skips ads, rewards native participation."
+  },
+  "category": {
+    "space": "Milk, dairy, and everyday beverages",
+    "competitors": ["Plant-based milks (Oatly, Silk)", "Energy/functional drinks", "Sports hydration brands"],
+    "category_context": "Dairy is defending relevance against plant alternatives and functional beverages; nostalgia and authenticity are milk's edge."
+  },
+  "channels": {
+    "priorities": ["TikTok", "Instagram", "X"],
+    "formats": ["short-form video", "duets/stitches", "meme graphics", "carousels"],
+    "guidance": "Lead organic-native; participate in trends rather than interrupt them."
+  },
+  "messaging": {
+    "pillars": ["Timeless staple", "Simple wholesome energy", "Cultural nostalgia", "Everyday moments"],
+    "approved_language": ["wholesome", "classic", "staple", "fuel", "the original"],
+    "banned_language": ["cures", "medically proven", "guaranteed health", "diet", "weight loss", "detox"],
+    "claims_rules": "No medical, nutritional-superiority, or health-outcome claims. Keep benefits general and lifestyle-oriented."
+  },
+  "governance": {
+    "do_not": [
+      "Invent health, nutrition, or medical claims",
+      "Put words in the mouths of real athletes or celebrities",
+      "Imply official endorsement that hasn't been secured",
+      "Target or sexualize minors",
+      "Make superiority claims vs. named competitors"
+    ],
+    "sensitive_topics": ["body image / dieting", "lactose intolerance framed negatively", "health outcomes"],
+    "approval_matrix": "Cultural Intelligence Strategist reviews all signals before action. Legal reviews any claim-adjacent content."
+  },
+  "performance_memory": {
+    "winning_hooks": ["nostalgic milk-mustache reveals", "pour-timed to a beat drop", "Y2K/90s throwback framing"],
+    "past_learnings": ["Native trend participation outperforms polished ads", "Nostalgia angles overperform with both Gen Z and parents"],
+    "avoid": ["Overly polished corporate tone", "Chasing trends the brand can't credibly join"]
+  }
+}
