@@ -157,6 +157,10 @@ async function scGet(endpoint, params) {
 function pickArray(obj) {
   if (!obj) return [];
   if (Array.isArray(obj)) return obj;
+  // Instagram hashtag shape: posts live in top_posts[] and/or recent_posts[].
+  if (Array.isArray(obj.top_posts) || Array.isArray(obj.recent_posts)) {
+    return [...(obj.top_posts || []), ...(obj.recent_posts || [])];
+  }
   // common containers, in order of likelihood
   const candidates = [
     obj.search_item_list, obj.item_list, obj.items, obj.aweme_list,
@@ -164,7 +168,7 @@ function pickArray(obj) {
     obj.tweets, obj.statuses,
   ];
   for (const c of candidates) if (Array.isArray(c)) return c;
-  // nested: data.items, data.posts, etc.
+  // nested: data.top_posts, data.posts, data.items, etc.
   if (obj.data && typeof obj.data === "object") {
     const nested = pickArray(obj.data);
     if (nested.length) return nested;
@@ -216,16 +220,16 @@ function normTikTok(p) {
 
 function normInstagram(p) {
   const node = p.node || p;
-  const text = pickText(node) ||
+  const rawText = pickText(node) ||
     node.edge_media_to_caption?.edges?.[0]?.node?.text || "";
   const code = node.code || node.shortcode || node.pk;
   return {
     platform: "Instagram",
-    text,
-    likes: num(node.like_count ?? node.likes ?? node.edge_liked_by?.count),
+    text: stripBrokenChars(rawText),
+    likes: num(node.like_count ?? node.likes ?? node.edge_liked_by?.count ?? node.edge_media_preview_like?.count),
     views: num(node.view_count ?? node.video_view_count ?? node.play_count),
     url: code ? `https://www.instagram.com/p/${code}/` : (node.url || ""),
-    author: node.user?.username || node.owner?.username || node.username || "",
+    author: node.user?.username || node.owner?.username || node.owner?.full_name || node.username || "",
   };
 }
 
@@ -598,7 +602,7 @@ app.post("/api/summary", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Culture Trend Wire running on port ${PORT}`);
+  console.log(`Signal Agent running on port ${PORT}`);
   if (!ANTHROPIC_KEY) console.warn("⚠  ANTHROPIC_API_KEY is not set.");
   else console.log("Using Claude model:", ANTHROPIC_MODEL);
   if (!ED_TOKEN) console.warn("⚠  ENSEMBLEDATA_TOKEN is not set (TikTok + Instagram will be skipped).");
