@@ -54,12 +54,11 @@ function loadBrain(id) {
 
 // ── config / secrets ─────────────────────────────────────────────────────────
 
-const OPENAI_KEY = process.env.OPENAI_API_KEY;
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 // Model is configurable so a name change is a one-setting fix, not a code edit.
-// GPT-5.5 is the current API default (Aug 2026). If you get a "model not found"
-// error, set OPENAI_MODEL in your host's environment to whatever your OpenAI
-// dashboard lists (e.g. gpt-5.5, gpt-5.4-mini).
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.5";
+// claude-sonnet-4-6 is a current, well-balanced model. To change it, set
+// ANTHROPIC_MODEL in your host environment (e.g. claude-sonnet-5, claude-opus-4-8).
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 const SC_KEY        = process.env.SCRAPECREATORS_API_KEY;   // used for X / Twitter search
 const ED_TOKEN      = process.env.ENSEMBLEDATA_TOKEN;       // used for TikTok + Instagram
 const PORT          = process.env.PORT || 3000;
@@ -294,28 +293,21 @@ async function fetchTwitter() {
 
 const CATEGORY_IDS = ["VIRAL_FORMATS", "FOOD_DRINK", "POP_CULTURE", "HEALTH_WELLNESS", "NOSTALGIA"];
 
-// Calls OpenAI's Chat Completions API but returns an Anthropic-shaped response
-// ({ content: [{ type: "text", text }] }) so the rest of the code is unchanged.
 async function callClaude({ system, messages, maxTokens = 4096 }) {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      "authorization": `Bearer ${OPENAI_KEY}`,
+      "x-api-key": ANTHROPIC_KEY,
+      "anthropic-version": "2023-06-01",
     },
-    body: JSON.stringify({
-      model: OPENAI_MODEL,
-      messages: [{ role: "system", content: system }, ...(messages || [])],
-      max_completion_tokens: maxTokens,
-    }),
+    body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: maxTokens, system, messages }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `OpenAI HTTP ${res.status}`);
+    throw new Error(err?.error?.message || `Anthropic HTTP ${res.status}`);
   }
-  const data = await res.json();
-  const text = data?.choices?.[0]?.message?.content || "";
-  return { content: [{ type: "text", text }] };
+  return res.json();
 }
 
 // Remove unpaired surrogate halves (e.g. an emoji cut in half by truncation) and
@@ -429,7 +421,7 @@ async function analyzeSignals(posts, brain) {
 app.get("/api/health", (_req, res) => {
   res.json({
     ok: true,
-    openai_key: Boolean(OPENAI_KEY), openai_model: OPENAI_MODEL,
+    anthropic_key: Boolean(ANTHROPIC_KEY), model: ANTHROPIC_MODEL,
     ensembledata_token: Boolean(ED_TOKEN),   // TikTok + Instagram
     scrapecreators_key: Boolean(SC_KEY),     // X / Twitter
   });
@@ -441,19 +433,19 @@ app.get("/api/clients", (_req, res) => {
 
 app.post("/api/scan", async (req, res) => {
   // Anthropic is always required. EnsembleData powers TikTok+IG, Scrape Creators powers X.
-  if (!OPENAI_KEY || (!ED_TOKEN && !SC_KEY)) {
+  if (!ANTHROPIC_KEY || (!ED_TOKEN && !SC_KEY)) {
     return res.status(500).json({
       error:
-        "Server is missing API keys. Set OPENAI_API_KEY plus ENSEMBLEDATA_TOKEN (TikTok/Instagram) and/or SCRAPECREATORS_API_KEY (X) in your host's environment variables.",
+        "Server is missing API keys. Set ANTHROPIC_API_KEY plus ENSEMBLEDATA_TOKEN (TikTok/Instagram) and/or SCRAPECREATORS_API_KEY (X) in your host's environment variables.",
     });
   }
   try {
     const { client, extraTerms, platforms, sprint } = req.body || {};
 
-    // Load the selected client's Brand Brain (required — the agent is client-specific).
-    const brain = loadBrain(client);
+    // Single-client build: always use the got milk? Brand Brain.
+    const brain = loadBrain(client || "gotmilk") || loadBrain("gotmilk");
     if (!brain) {
-      return res.status(400).json({ error: "No Brand Brain selected or found. Pick a client first." });
+      return res.status(500).json({ error: "got milk? Brand Brain not found. Ensure brand-brains/gotmilk.json is deployed." });
     }
 
     // Build the search sets: culture base terms + any user-supplied focus.
@@ -519,7 +511,7 @@ app.post("/api/scan", async (req, res) => {
 });
 
 app.post("/api/ideas", async (req, res) => {
-  if (!OPENAI_KEY) return res.status(500).json({ error: "Server missing OPENAI_API_KEY." });
+  if (!ANTHROPIC_KEY) return res.status(500).json({ error: "Server missing ANTHROPIC_API_KEY." });
   try {
     const { trends } = req.body || {};
     if (!Array.isArray(trends) || !trends.length) {
@@ -571,7 +563,7 @@ app.post("/api/ideas", async (req, res) => {
 });
 
 app.post("/api/summary", async (req, res) => {
-  if (!OPENAI_KEY) return res.status(500).json({ error: "Server missing OPENAI_API_KEY." });
+  if (!ANTHROPIC_KEY) return res.status(500).json({ error: "Server missing ANTHROPIC_API_KEY." });
   try {
     const { trends, dateLabel } = req.body || {};
     if (!Array.isArray(trends) || !trends.length) {
@@ -607,8 +599,8 @@ app.post("/api/summary", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Culture Trend Wire running on port ${PORT}`);
-  if (!OPENAI_KEY) console.warn("⚠  OPENAI_API_KEY is not set.");
-  else console.log("Using OpenAI model:", OPENAI_MODEL);
+  if (!ANTHROPIC_KEY) console.warn("⚠  ANTHROPIC_API_KEY is not set.");
+  else console.log("Using Claude model:", ANTHROPIC_MODEL);
   if (!ED_TOKEN) console.warn("⚠  ENSEMBLEDATA_TOKEN is not set (TikTok + Instagram will be skipped).");
   if (!SC_KEY) console.warn("⚠  SCRAPECREATORS_API_KEY is not set (X will be skipped).");
 });
